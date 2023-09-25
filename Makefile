@@ -55,7 +55,8 @@ GIT = git clone git@github.com:42Paris/minilibx-linux.git minilibx
 LIBSRC = minilibx/libmlx_Linux.a \
 	minilibx/libmlx.a
 LIBFLAG = -lXext -lX11 -lm
-FLAGS = -g -Werror -Wextra -Wall
+FLAGS = -g
+#-Werror -Wextra -Wall
 OUTPUT = -o
 
 all: $(NAME)
