@@ -130,6 +130,8 @@ typedef struct s_game
 {
     void *mlx;
     void *win;
+    void *game_temp;
+    void *blank;
     int x_map;
     int y_map;
     int player_x;
@@ -150,11 +152,11 @@ void draw_pixel(t_game *game, int x, int y, int color)
     mlx_pixel_put(game->mlx, game->win, x, y, color);
 }
 
-void draw_vision(t_game *game, int x , int y, int color)
-{
-    while(y > 0)
-        draw_pixel(game,x+9,y--,color);
-}
+// void draw_vision(t_game *game, int x , int y, int color)
+// {
+//     while(y > 0)
+//         draw_pixel(game,x+9,y--,color);
+// }
 
 bool get_pos_map(t_game game, int x_pixel, int y_pixel)
 {
@@ -175,7 +177,39 @@ bool get_pos_map(t_game game, int x_pixel, int y_pixel)
     return false; // Não encontrou um '1' ou as coordenadas estão fora dos limites
 }
 
-void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int length, int color, t_game game)
+// void render(double distance, double angle_deg,t_game *game)
+// {
+//     int temp = (angle_deg - i)/3;//63-60/3
+//     int temp_distance = 500 - distance;
+//     mlx_put_image_to_window(game->mlx,game->win,game->blank,temp*20,temp_distance);
+// }
+
+
+void render(double distance, double angle_deg, t_game *game)
+{
+    // Suponha que a altura da janela seja 600 pixels
+    int window_height = 400;
+
+    // Calcule a coordenada Y para renderizar a imagem
+    float temp_y = distance / 600;
+    printf("%f %f\n",distance,temp_y);
+    int y = 400 * temp_y;
+    int temp = (angle_deg - i);
+    int y_temp;
+    y_temp = 400 - y;
+
+    // Renderize a imagem em (x, y)
+    printf("%d %d\n",y_temp,y);
+    while(y <= y_temp)
+    {
+        mlx_put_image_to_window(game->mlx, game->win, game->blank,(30 - temp) * 20, y);
+        y += 20;
+   }
+    mlx_put_image_to_window(game->mlx, game->win, game->blank,(30 - temp) * 20, y_temp );
+
+}
+
+void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int length, int color, t_game *game)
 {
     double angle_rad = angle_deg * M_PI / 180.0; // Converter o ângulo de graus para radianos
     int x2 = x1 + (int)(length * cos(angle_rad));
@@ -189,11 +223,15 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
 
     while (1)
     {
-        if (get_pos_map(game, x1, y1))
+        if (get_pos_map((*game), x1, y1))
         {
+            double distance = sqrt((x1 - game->player_x) * (x1 - game->player_x) + (y1 - game->player_y) * (y1 - game->player_y));
+            // printf("%2.f %2.f\n",angle_deg,distance);
+            render(distance,angle_deg,game);
+            mlx_pixel_put(mlx, game->game_temp, x1, y1, 255);
             break; // Se encontrou um '1', saia do loop
         }
-            mlx_pixel_put(mlx, win, x1, y1, color);
+            mlx_pixel_put(mlx, game->game_temp, x1, y1, color);
 
         if (x1 == x2 && y1 == y2)
             break;
@@ -212,72 +250,31 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
     }
 }
 
-// void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int length, int color,t_game *game)
-// {
-//     double angle_rad = angle_deg * M_PI / 180.0; // Converter o ângulo de graus para radianos
-//     int x2 = x1 + (int)(length * cos(angle_rad));
-//     int y2 = y1 - (int)(length * sin(angle_rad)); // Usamos -sin porque as coordenadas da janela aumentam para baixo
-
-//     int dx = abs(x2 - x1);
-//     int dy = abs(y2 - y1);
-//     int sx = (x1 < x2) ? 1 : -1;
-//     int sy = (y1 < y2) ? 1 : -1;
-//     int err = dx - dy;
-
-//     while (1)
-//     {
-//         // if(get_pos_map(game))
-//         mlx_pixel_put(mlx, win, x1, y1, color);
-
-//         if (x1 == x2 && y1 == y2)
-//             break;
-
-//         int e2 = 2 * err;
-//         if (e2 > -dy)
-//         {
-//             err -= dy;
-//             x1 += sx;
-//         }
-//         if (e2 < dx)
-//         {
-//             err += dx;
-//             y1 += sy;
-//         }
-//     }
-// }
-
-// void draw_player_vision(t_game *game) {
-//   // Calculate the start and end points of the vision line.
-//   int startX = game->player_x + 10;
-//   int startY = game->player_y + 10;
-//   int endX = startX + cameraAngle * cos(cameraAngle * M_PI / 180.0);
-//   int endY = startY - cameraAngle * sin(cameraAngle * M_PI / 180.0);
-
-//   // Draw the vision line.
-//   draw_line(game->mlx, game->win, startX, startY, endX, endY, 0xFFFFFF);
-// }
-
 void draw_player(t_game *game)
 {
     int temp_x;
     int temp_y;
 
     temp_x = game->player_x;
-    while(temp_x < game->player_x + 20)
+    while(temp_x < game->player_x + 2)
     {
         temp_y = game->player_y;
-        while(temp_y < game->player_y + 20)
+        while(temp_y < game->player_y + 2)
         {
             draw_pixel(game,temp_x,temp_y,0xFFFFFF);
             temp_y++;
         }
         temp_x++;
     }
+}
+
+void draw_vision(t_game *game)
+{
     int j = i;
-    while(j < i + 60)
+    while(j < i + 30)
     {
-        draw_line(game->mlx,game->win,game->player_x+10,game->player_y+10,j,1000,0xFFFFFF,*game);
-        j += 3;
+        draw_line(game->mlx,game->win,game->player_x,game->player_y,j,1000,0xFFFFFF,game);
+        j++;
     }
 }
 
@@ -285,19 +282,28 @@ int update_game(t_game *game)
 {
     if (is_left_key_pressed && !get_pos_map(*game,game->player_x-1,game->player_y))
         game->player_x -= 1; // Move the player to the left
-    if (is_right_key_pressed && !get_pos_map(*game,game->player_x+21,game->player_y))
+    if (is_right_key_pressed && !get_pos_map(*game,game->player_x+1,game->player_y))
         game->player_x += 1; // Move the player to the right
     if (is_up_key_pressed && !get_pos_map(*game,game->player_x,game->player_y-1))
         game->player_y -= 1;
-    if (is_down_key_pressed && !get_pos_map(*game,game->player_x,game->player_y+21))
+    if (is_down_key_pressed && !get_pos_map(*game,game->player_x,game->player_y+1))
         game->player_y += 1;
     if(is_right_camera)
+    {
         i++;
+        if(i > 360)
+            i = 0;
+    }
     if(is_left_camera)
+    {
         i--;
+        if(i < -1)
+            i = 360;
+    }
 
     mlx_clear_window(game->mlx, game->win); // Clear the window
-    draw_player(game); // Redraw the player at the updated position
+    mlx_clear_window(game->mlx, game->game_temp); // Clear the window
+    draw_vision(game);
 
     return 0;
 }
@@ -367,8 +373,12 @@ int main(int ac, char **av)
     close(fd);
 
     game.mlx = mlx_init();
-    game.win = mlx_new_window(game.mlx, x*64, y*64, "Simple 2D Game");
-    //render_map(game.mlx, game.win, x, y, map);
+    game.win = mlx_new_window(game.mlx, 600, 400, "Simple 2D Game");
+    game.game_temp = mlx_new_window(game.mlx,600,400,"teste");
+    int temp_x = 1;
+    int temp_y = 1;
+    game.blank = mlx_xpm_file_to_image(game.mlx,"blank.xpm",&temp_x,&temp_y);
+    // render_map(game.mlx, game.win, x, y, game.map);
 
     game.player_x = 400; // Initial X position of the player
     game.player_y = 300; // Initial Y position of the player
