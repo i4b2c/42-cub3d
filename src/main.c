@@ -132,6 +132,8 @@ typedef struct s_game
     void *win;
     void *game_temp;
     void *blank;
+    void *light_blue;
+    void *dark_blue;
     int x_map;
     int y_map;
     int player_x;
@@ -170,10 +172,7 @@ bool get_pos_map(t_game game, int x_pixel, int y_pixel, int *cor)
         // Verifique se o caractere na posição correspondente no mapa é '1'
         if (game.map[y_map][x_map] == '1')
         {
-            if(game.map[(y_pixel - 1) / 64][x_map] == '0' || game.map[(y_pixel + 1) / 64][x_map] == '0'
-                && game.map[y_map][(x_pixel - 1) / 64] == '0' || game.map[y_map][(y_pixel + 1) / 64] == '0')
-                *cor = 0xFF0000;
-            else if(game.map[(y_pixel - 1) / 64][x_map] == '0' || game.map[(y_pixel + 1) / 64][x_map] == '0')
+            if(game.map[(y_pixel - 1) / 64][x_map] == '0' || game.map[(y_pixel + 1) / 64][x_map] == '0')
                 *cor = 0x00FF00;
             else if(game.map[y_map][(x_pixel - 1) / 64] == '0' || game.map[y_map][(y_pixel + 1) / 64] == '0')
                 *cor = 0x0000FF;
@@ -184,6 +183,7 @@ bool get_pos_map(t_game game, int x_pixel, int y_pixel, int *cor)
     return false; // Não encontrou um '1' ou as coordenadas estão fora dos limites
 }
 
+
 // void render(double distance, double angle_deg,t_game *game)
 // {
 //     int temp = (angle_deg - i)/3;//63-60/3
@@ -192,17 +192,13 @@ bool get_pos_map(t_game game, int x_pixel, int y_pixel, int *cor)
 // }
 
 
-void render(double distance, double angle_deg, t_game *game)
+void render(double distance, double angle_deg, t_game *game,int cor)
 {
     // Suponha que a altura da janela seja 600 pixels
     int window_height = 400;
 
     // Calcule a coordenada Y para renderizar a imagem
-<<<<<<< HEAD
     float temp_y = distance / 721;
-=======
-    float temp_y = distance / 600;
->>>>>>> fae38a99c13ba114ae66670e2184e5e334e10924
     printf("%f %f\n",distance,temp_y);
     int y = 400 * temp_y;
     int temp = (angle_deg - i);
@@ -213,10 +209,16 @@ void render(double distance, double angle_deg, t_game *game)
     printf("%d %d\n",y_temp,y);
     while(y <= y_temp)
     {
-        mlx_put_image_to_window(game->mlx, game->win, game->blank,(30 - temp) * 20, y);
+        if(cor == 0x0000FF)
+            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,(30 - temp) * 20, y);
+        else
+            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,(30 - temp) * 20, y);
         y += 20;
    }
-    mlx_put_image_to_window(game->mlx, game->win, game->blank,(30 - temp) * 20, y_temp );
+   if(cor == 0x0000FF)
+            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,(30 - temp) * 20, y_temp );
+        else
+            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,(30 - temp) * 20, y_temp );
 
 }
 
@@ -234,21 +236,14 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
 
     while (1)
     {
-<<<<<<< HEAD
         int cor;
         if (get_pos_map((*game), x1, y1,&cor))
-=======
-        if (get_pos_map((*game), x1, y1))
->>>>>>> fae38a99c13ba114ae66670e2184e5e334e10924
         {
             double distance = sqrt((x1 - game->player_x) * (x1 - game->player_x) + (y1 - game->player_y) * (y1 - game->player_y));
             // printf("%2.f %2.f\n",angle_deg,distance);
-            render(distance,angle_deg,game);
-<<<<<<< HEAD
+            render(distance,angle_deg,game,cor);
             mlx_pixel_put(mlx, game->game_temp, x1, y1, cor);
-=======
-            mlx_pixel_put(mlx, game->game_temp, x1, y1, 255);
->>>>>>> fae38a99c13ba114ae66670e2184e5e334e10924
+            //mlx_pixel_put(mlx, game->game_temp, x1, y1, 255);
             break; // Se encontrou um '1', saia do loop
         }
             mlx_pixel_put(mlx, game->game_temp, x1, y1, color);
@@ -304,19 +299,11 @@ int update_game(t_game *game)
     (void)cor;
     if (is_left_key_pressed && !get_pos_map(*game,game->player_x-1,game->player_y,&cor))
         game->player_x -= 1; // Move the player to the left
-<<<<<<< HEAD
     if (is_right_key_pressed && !get_pos_map(*game,game->player_x+1,game->player_y,&cor))
-=======
-    if (is_right_key_pressed && !get_pos_map(*game,game->player_x+1,game->player_y))
->>>>>>> fae38a99c13ba114ae66670e2184e5e334e10924
         game->player_x += 1; // Move the player to the right
     if (is_up_key_pressed && !get_pos_map(*game,game->player_x,game->player_y-1,&cor))
         game->player_y -= 1;
-<<<<<<< HEAD
     if (is_down_key_pressed && !get_pos_map(*game,game->player_x,game->player_y+1,&cor))
-=======
-    if (is_down_key_pressed && !get_pos_map(*game,game->player_x,game->player_y+1))
->>>>>>> fae38a99c13ba114ae66670e2184e5e334e10924
         game->player_y += 1;
     if(is_right_camera)
     {
@@ -408,6 +395,8 @@ int main(int ac, char **av)
     int temp_x = 1;
     int temp_y = 1;
     game.blank = mlx_xpm_file_to_image(game.mlx,"blank.xpm",&temp_x,&temp_y);
+    game.light_blue = mlx_xpm_file_to_image(game.mlx,"light_blue.xpm",&temp_x,&temp_y);
+    game.dark_blue = mlx_xpm_file_to_image(game.mlx,"dark_blue.xpm",&temp_x,&temp_y);
     // render_map(game.mlx, game.win, x, y, game.map);
 
     game.player_x = 400; // Initial X position of the player
