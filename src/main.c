@@ -160,6 +160,44 @@ void draw_pixel(t_game *game, int x, int y, int color)
 //         draw_pixel(game,x+9,y--,color);
 // }
 
+int get_distance_to_object(int player_x, int player_y, char **map, double angle_deg,t_game *game) {
+
+  // Converte o ângulo em graus para radianos
+  double angle_rad = angle_deg * M_PI / 180.0;
+
+  // Inicializa as variáveis de estado
+  int x = player_x;
+  int y = player_y;
+  int dx = cos(angle_rad);
+  int dy = sin(angle_rad);
+  int step = 1;
+  int distance = 0;
+
+  // Itera sobre os pontos da linha
+  while (x != 0 || y != 0) {
+
+    // Atualiza a posição do player
+    x += dx * step;
+    y += dy * step;
+
+    // Incrementa a distância
+    distance++;
+
+    // Verifica se o ponto está fora do mapa
+    if (x < 0 || x >= game->x_map || y < 0 || y >= game->y_map) {
+      return -1;
+    }
+
+    // Verifica se o ponto é um obstáculo
+    if (map[y][x] == '#') {
+      return -1;
+    }
+  }
+
+  // Retorna a distância
+  return distance;
+}
+
 bool get_pos_map(t_game game, int x_pixel, int y_pixel, int *cor)
 {
     // Converta as coordenadas de pixel para coordenadas do mapa
@@ -184,29 +222,21 @@ bool get_pos_map(t_game game, int x_pixel, int y_pixel, int *cor)
 }
 
 
-// void render(double distance, double angle_deg,t_game *game)
-// {
-//     int temp = (angle_deg - i)/3;//63-60/3
-//     int temp_distance = 500 - distance;
-//     mlx_put_image_to_window(game->mlx,game->win,game->blank,temp*20,temp_distance);
-// }
-
-
 void render(double distance, double angle_deg, t_game *game,int cor)
 {
     // Suponha que a altura da janela seja 600 pixels
     int window_height = 400;
 
     // Calcule a coordenada Y para renderizar a imagem
-    float temp_y = distance / 721;
-    printf("%f %f\n",distance,temp_y);
+    float temp_y = distance / (window_height + 600);
+    // printf("%f %f\n",distance,temp_y);
     int y = 400 * temp_y;
     int temp = (angle_deg - i);
     int y_temp;
     y_temp = 400 - y;
 
     // Renderize a imagem em (x, y)
-    printf("%d %d\n",y_temp,y);
+    // printf("%d %d\n",y_temp,y);
     while(y <= y_temp)
     {
         if(cor == 0x0000FF)
@@ -241,6 +271,7 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
         {
             double distance = sqrt((x1 - game->player_x) * (x1 - game->player_x) + (y1 - game->player_y) * (y1 - game->player_y));
             // printf("%2.f %2.f\n",angle_deg,distance);
+            printf("%2.f %d\n",distance,get_distance_to_object(game->player_x,game->player_y,game->map,angle_deg,game));
             render(distance,angle_deg,game,cor);
             mlx_pixel_put(mlx, game->game_temp, x1, y1, cor);
             //mlx_pixel_put(mlx, game->game_temp, x1, y1, 255);
@@ -265,6 +296,42 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
     }
 }
 
+int get_distance_between_points(int x1, int y1, int x2, int y2)
+    {
+        // Inicializa o erro
+        int err = 0;
+
+        // Começa no ponto inicial
+        int x = x1;
+        int y = y1;
+
+        // Itera sobre os pontos da linha
+        while (x != x2 || y != y2)
+        {
+            // Calcula o erro para o próximo ponto
+            int dx = x2 - x;
+            int dy = y2 - y;
+            err += dx - dy;
+
+            // Se o erro for positivo, move o ponto atual para o ponto seguinte
+            if (err > 0)
+            {
+                y++;
+                err -= 2 * dy;
+            }
+
+            // Se o erro for negativo, move o ponto atual para o ponto seguinte
+            else
+            {
+                x++;
+            }
+        }
+
+        // Retorna a distância entre os pontos
+        return abs(x - x1) + abs(y - y1);
+    }
+
+
 void draw_player(t_game *game)
 {
     int temp_x;
@@ -288,6 +355,7 @@ void draw_vision(t_game *game)
     int j = i;
     while(j < i + 30)
     {
+        // printf("%d\n",)
         draw_line(game->mlx,game->win,game->player_x,game->player_y,j,1000,0xFFFFFF,game);
         j++;
     }
@@ -308,13 +376,13 @@ int update_game(t_game *game)
     if(is_right_camera)
     {
         i++;
-        if(i > 360)
+        if(i == 360)
             i = 0;
     }
     if(is_left_camera)
     {
         i--;
-        if(i < -1)
+        if(i == -1)
             i = 360;
     }
 
@@ -345,7 +413,7 @@ int key_press(int keycode, t_game *game)
 
 int key_release(int keycode, t_game *game)
 {
-    printf("%d\n",keycode);
+    // printf("%d\n",keycode);
     if (keycode == A) // Left arrow key
     {
         is_left_key_pressed = false;
@@ -369,6 +437,36 @@ int key_release(int keycode, t_game *game)
 
     return 0;
 }
+
+void encerrar_jogo(t_game *game)
+{
+    int i;
+
+    i = game->y_map - 1;
+    while(i >= 0)
+        free(game->map[i--]);
+    free(game->map);
+    mlx_loop_end(game->mlx);
+	mlx_destroy_window(game->mlx, game->win);
+	mlx_destroy_window(game->mlx, game->game_temp);
+    mlx_destroy_image(game->mlx, game->blank);
+	mlx_destroy_image(game->mlx, game->dark_blue);
+	mlx_destroy_image(game->mlx, game->light_blue);
+    mlx_destroy_display(game->mlx);
+    free(game->mlx);
+}
+
+int	mouse_hook(t_game *game)
+{
+    (void)game;
+	encerrar_jogo(game);
+	exit(0);
+}
+
+// void loop(t_game *game)
+// {
+
+// }
 
 int main(int ac, char **av)
 {
@@ -404,8 +502,9 @@ int main(int ac, char **av)
 
     mlx_hook(game.win, 2, 1L << 0, key_press, &game); // Register key press event
     mlx_hook(game.win, 3, 1L << 1, key_release, &game); // Register key release event
-
+    mlx_hook(game.win, 17, 1, mouse_hook, &game);
     mlx_loop_hook(game.mlx, &update_game, &game); // Register the update function
+
     mlx_loop(game.mlx);
 
     return 0;
