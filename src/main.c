@@ -240,16 +240,48 @@ void render(double distance, double angle_deg, t_game *game,int cor)
     while(y <= y_temp)
     {
         if(cor == 0x0000FF)
-            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,(30 - temp) * 20, y);
+            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,((30 - temp) * 20) - 20, y);
         else
-            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,(30 - temp) * 20, y);
+            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,((30 - temp) * 20) - 20, y);
         y += 20;
    }
    if(cor == 0x0000FF)
-            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,(30 - temp) * 20, y_temp );
+            mlx_put_image_to_window(game->mlx, game->win, game->light_blue,((30 - temp) * 20) - 20, y_temp );
         else
-            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,(30 - temp) * 20, y_temp );
+            mlx_put_image_to_window(game->mlx, game->win, game->dark_blue,((30 - temp) * 20) - 20, y_temp );
 
+}
+
+void draw_line_dda(void *mlx, void *win, int x1, int y1, double angle_deg, int length, int color, t_game *game)
+{
+    double angle_rad = (angle_deg * M_PI) / 180.0; // Converter o ângulo de graus para radianos
+    int cor;
+
+    // Calcular o incremento x e y para cada iteração do loop DDA
+    double deltax = cos(angle_rad) * length;
+    double deltay = sin(angle_rad) * length;
+
+    // Iniciar a interpolação das coordenadas x e y, iniciando no ponto inicial
+    int x = x1;
+    int y = y1;
+
+    // Itera até que x atinja o ponto final
+    while (x < x1 + length) {
+        // Verifica se o raio atingiu uma parede
+        if (get_pos_map((*game), x, y,&cor)) {
+            printf("%d %d %d %d %f\n",x,y,x1,y1,angle_deg);
+            // Raio atingiu uma parede
+            // ...
+            break;
+        }
+
+        // Incrementa x e y de acordo com o incremento calculado
+        x += deltax;
+        y += deltay;
+
+        // Desenha o pixel na tela
+        mlx_pixel_put(mlx, game->game_temp, x, y, color);
+    }
 }
 
 void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int length, int color, t_game *game)
@@ -492,9 +524,9 @@ int main(int ac, char **av)
     game.game_temp = mlx_new_window(game.mlx,600,400,"teste");
     int temp_x = 1;
     int temp_y = 1;
-    game.blank = mlx_xpm_file_to_image(game.mlx,"blank.xpm",&temp_x,&temp_y);
-    game.light_blue = mlx_xpm_file_to_image(game.mlx,"light_blue.xpm",&temp_x,&temp_y);
-    game.dark_blue = mlx_xpm_file_to_image(game.mlx,"dark_blue.xpm",&temp_x,&temp_y);
+    game.blank = mlx_xpm_file_to_image(game.mlx,"sprite/blank.xpm",&temp_x,&temp_y);
+    game.light_blue = mlx_xpm_file_to_image(game.mlx,"sprite/light_blue.xpm",&temp_x,&temp_y);
+    game.dark_blue = mlx_xpm_file_to_image(game.mlx,"sprite/dark_blue.xpm",&temp_x,&temp_y);
     // render_map(game.mlx, game.win, x, y, game.map);
 
     game.player_x = 400; // Initial X position of the player
