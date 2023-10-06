@@ -1,6 +1,6 @@
 #include "../include/cub3d.h"
 
-#include <mlx.h>
+//#include <mlx.h>
 #include <math.h>
 #ifndef WHITE
 #define WHITE 0xFFFFFF
@@ -125,7 +125,7 @@ void render_map(void *mlx, void *win, int x, int y, char **map) {
 }
 
 
-#include <mlx.h>
+//#include <mlx.h>
 #include <stdbool.h>
 #include <math.h>
 
@@ -150,7 +150,7 @@ bool is_up_key_pressed = false;
 bool is_down_key_pressed = false;
 bool is_left_camera = false;
 bool is_right_camera = false;
-int i = 60;
+int i = 45;
 
 void draw_pixel(t_game *game, int x, int y, int color)
 {
@@ -234,7 +234,7 @@ void render(double distance, double angle_deg, t_game *game,int cor)
     float temp_y = distance / (window_height + 600);
     // printf("%f %f\n",distance,temp_y);
     int y = 400 * temp_y;
-    int temp = (angle_deg - i);
+    int temp = (angle_deg - i + 15);
     int y_temp;
     y_temp = 400 - y;
 
@@ -305,11 +305,9 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
         if (get_pos_map((*game), x1, y1,&cor))
         {
             double distance = sqrt((x1 - game->player_x) * (x1 - game->player_x) + (y1 - game->player_y) * (y1 - game->player_y));
-            // printf("%2.f %2.f\n",angle_deg,distance);
             printf("%2.f %d\n",distance,get_distance_to_object(game->player_x,game->player_y,game->map,angle_deg,game));
             render(distance,angle_deg,game,cor);
             mlx_pixel_put(mlx, game->game_temp, x1, y1, cor);
-            //mlx_pixel_put(mlx, game->game_temp, x1, y1, 255);
             break; // Se encontrou um '1', saia do loop
         }
             mlx_pixel_put(mlx, game->game_temp, x1, y1, color);
@@ -387,27 +385,171 @@ void draw_player(t_game *game)
 
 void draw_vision(t_game *game)
 {
-    int j = i;
-    while(j < i + 30)
+    int j;
+
+    if(i - 15 < 0)
+        j = 360 + (i - 15);
+    else
+        j = i - 15;
+    while(j <= i + 15)
     {
-        // printf("%d\n",)
         draw_line(game->mlx,game->win,game->player_x,game->player_y,j,1000,0xFFFFFF,game);
         j++;
     }
 }
 
+void left_movement(t_game *game)
+{
+    int cor;
+
+    (void)cor;
+    if(i >= 15 && i < 60 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 60 && i < 105 && !get_pos_map(*game, game->player_x - 1, game->player_y, &cor))
+        game->player_x -= 1;
+    else if(i >= 105 && i < 150 && !get_pos_map(*game, game->player_x - 1, game->player_y + 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y += 1;
+    }
+    else if(i >= 150 && i < 195 && !get_pos_map(*game, game->player_x, game->player_y + 1, &cor))
+        game->player_y += 1;
+    else if(i >= 195 && i < 240 && !get_pos_map(*game, game->player_x + 1, game->player_y + 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y += 1;
+    }
+    else if(i >= 240 && i < 285 && !get_pos_map(*game, game->player_x + 1, game->player_y, &cor))
+        game->player_x += 1;
+    else if(i >= 285 && i < 330 && !get_pos_map(*game, game->player_x + 1, game->player_y - 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 330 && i <= 360 && !get_pos_map(*game, game->player_x, game->player_y - 1, &cor))
+        game->player_y -= 1;
+}
+void right_movement(t_game *game)
+{
+    int cor;
+
+    (void)cor;
+    if(i >= 15 && i < 60 && !get_pos_map(*game, game->player_x + 1, game->player_y + 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y += 1;
+    }
+    else if(i >= 60 && i < 105 && !get_pos_map(*game, game->player_x + 1, game->player_y, &cor))
+        game->player_x += 1;
+    else if(i >= 105 && i < 150 && !get_pos_map(*game, game->player_x + 1, game->player_y - 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 150 && i < 195 && !get_pos_map(*game, game->player_x, game->player_y - 1, &cor))
+        game->player_y -= 1;
+    else if(i >= 195 && i < 240 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 240 && i < 285 && !get_pos_map(*game, game->player_x - 1, game->player_y, &cor))
+        game->player_x -= 1;
+    else if(i >= 285 && i < 330 && !get_pos_map(*game, game->player_x - 1, game->player_y + 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y += 1;
+    }
+    else if(i >= 330 && i <= 360 && !get_pos_map(*game, game->player_x, game->player_y + 1, &cor))
+        game->player_y += 1;
+}
+
+void up_movement(t_game *game)
+{
+    int cor;
+
+    (void)cor;
+    if(i >= 15 && i < 60 && !get_pos_map(*game, game->player_x + 1, game->player_y - 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 60 && i < 105 && !get_pos_map(*game, game->player_x, game->player_y - 1, &cor))
+        game->player_y -= 1;
+    else if(i >= 105 && i < 150 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 150 && i < 195 && !get_pos_map(*game, game->player_x - 1, game->player_y, &cor))
+        game->player_x -= 1;
+    else if(i >= 195 && i < 240 && !get_pos_map(*game, game->player_x - 1, game->player_y + 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y += 1;
+    }
+    else if(i >= 240 && i < 285 && !get_pos_map(*game, game->player_x, game->player_y + 1, &cor))
+        game->player_y += 1;
+    else if(i >= 285 && i < 330 && !get_pos_map(*game, game->player_x + 1, game->player_y + 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y += 1;
+    }
+    else if(i >= 330 && i <= 360 && !get_pos_map(*game, game->player_x + 1, game->player_y, &cor))
+        game->player_x += 1;
+}
+
+void down_movement(t_game *game)
+{
+    int cor;
+
+    (void)cor;
+    if(i >= 15 && i < 60 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y += 1;
+    }
+    else if(i >= 60 && i < 105 && !get_pos_map(*game, game->player_x, game->player_y + 1, &cor))
+        game->player_y += 1;
+    else if(i >= 105 && i < 150 && !get_pos_map(*game, game->player_x + 1, game->player_y + 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y += 1;
+    }
+    else if(i >= 150 && i < 195 && !get_pos_map(*game, game->player_x + 1, game->player_y, &cor))
+        game->player_x += 1;
+    else if(i >= 195 && i < 240 && !get_pos_map(*game, game->player_x + 1, game->player_y - 1, &cor))
+    {
+        game->player_x += 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 240 && i < 285 && !get_pos_map(*game, game->player_x, game->player_y - 1, &cor))
+        game->player_y -= 1;
+    else if(i >= 285 && i < 330 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
+    {
+        game->player_x -= 1;
+        game->player_y -= 1;
+    }
+    else if(i >= 330 && i <= 360 && !get_pos_map(*game, game->player_x - 1, game->player_y, &cor))
+        game->player_x -= 1;
+}
+
+
 int update_game(t_game *game)
 {
     int cor = 0;
     (void)cor;
-    if (is_left_key_pressed && !get_pos_map(*game,game->player_x-1,game->player_y,&cor))
-        game->player_x -= 1; // Move the player to the left
-    if (is_right_key_pressed && !get_pos_map(*game,game->player_x+1,game->player_y,&cor))
-        game->player_x += 1; // Move the player to the right
-    if (is_up_key_pressed && !get_pos_map(*game,game->player_x,game->player_y-1,&cor))
-        game->player_y -= 1;
-    if (is_down_key_pressed && !get_pos_map(*game,game->player_x,game->player_y+1,&cor))
-        game->player_y += 1;
+    if (is_left_key_pressed)
+        left_movement(game);
+    if (is_right_key_pressed)
+        right_movement(game); // Move the player to the right
+    if (is_up_key_pressed)
+        up_movement(game);
+    if (is_down_key_pressed)
+        down_movement(game);
     if(is_right_camera)
     {
         i++;
@@ -450,21 +592,12 @@ int key_release(int keycode, t_game *game)
 {
     // printf("%d\n",keycode);
     if (keycode == A) // Left arrow key
-    {
         is_left_key_pressed = false;
-    }
     if (keycode == D) // Right arrow key
-    {
         is_right_key_pressed = false;
-    }
-    if(keycode == W)
-    {
         is_up_key_pressed = false;
-    }
     if(keycode == S)
-    {
         is_down_key_pressed = false;
-    }
     if(keycode == 65361)
         is_right_camera = false;
     if(keycode == 65363)
