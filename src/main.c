@@ -2,9 +2,12 @@
 
 #include <mlx.h>
 #include <math.h>
-
+#ifndef WHITE
 #define WHITE 0xFFFFFF
-
+#endif
+#ifndef NUM_PIXEIS
+#define NUM_PIXEIS 64
+#endif
 
 int	funcao_x(int fd)
 {
@@ -500,6 +503,35 @@ int	mouse_hook(t_game *game)
 
 // }
 
+void get_player_position(t_game *game,int fd, char **av)
+{
+    char	*s;
+	int		k;
+    int     j;
+	char **map;
+
+    fd = open(av[1],O_RDONLY);
+	k = 0;
+	while (1)
+	{
+        j = 0;
+		s = get_next_line(fd);
+		if (!s)
+			break ;
+        while(s[j])
+        {
+            if(s[j] == 'P')
+            {
+                game->player_x = ((j) * NUM_PIXEIS) + (NUM_PIXEIS / 2);
+                game->player_y = ((k) * NUM_PIXEIS) + (NUM_PIXEIS / 2);
+            }
+            j++;
+        }
+		free(s);
+		k++;
+	}
+}
+
 int main(int ac, char **av)
 {
     t_game game;
@@ -527,10 +559,11 @@ int main(int ac, char **av)
     game.blank = mlx_xpm_file_to_image(game.mlx,"sprite/blank.xpm",&temp_x,&temp_y);
     game.light_blue = mlx_xpm_file_to_image(game.mlx,"sprite/light_blue.xpm",&temp_x,&temp_y);
     game.dark_blue = mlx_xpm_file_to_image(game.mlx,"sprite/dark_blue.xpm",&temp_x,&temp_y);
+    get_player_position(&game,fd,av);
     // render_map(game.mlx, game.win, x, y, game.map);
 
-    game.player_x = 400; // Initial X position of the player
-    game.player_y = 300; // Initial Y position of the player
+    // game.player_x = 65; // Initial X position of the player
+    // game.player_y = 65; // Initial Y position of the player
 
     mlx_hook(game.win, 2, 1L << 0, key_press, &game); // Register key press event
     mlx_hook(game.win, 3, 1L << 1, key_release, &game); // Register key release event
