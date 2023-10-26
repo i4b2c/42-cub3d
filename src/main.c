@@ -346,6 +346,7 @@ void get_pos_init(t_game *game,double distancia , double angle_rad,int sx,int sy
 //     mlx_pixel_put(game->mlx, game->game_temp, nova_posicao_x, nova_posicao_y, 0x00FF00);
 // }
 
+
 void get_pos_init_x(t_game *game,double distancia , double angle_rad,int sx,int sy)
 {
     double mudanca_x = distancia * cos(angle_rad);
@@ -353,25 +354,29 @@ void get_pos_init_x(t_game *game,double distancia , double angle_rad,int sx,int 
     double nova_posicao_x;
     double nova_posicao_y;
 
-    printf("%d %d\n",sx,sy);
+    // printf("%d %d\n",sx,sy);
     // if(sx != sy)
     // {
-    if((sx == 1 && sy == 1) || (sx == -1 && sy == -1))
-    {
-        nova_posicao_x = game->player_x + (mudanca_x * sx);
-        nova_posicao_y = game->player_y + (mudanca_y * sx);
-    }
-    else if(sx == -1 && sy == 1)
-    {
-        nova_posicao_x = game->player_x - mudanca_x;
-        nova_posicao_y = game->player_y - mudanca_y;
-    }
-    else if(sx == 1 && sy == -1)
-    {
+    // if(mudanca_x < 0)
+    //     mudanca_x *= -1;
+    // if(mudanca_y < 0)
+    //     mudanca_y *= -1;
+    // if((sx == 1 && sy == 1) || (sx == -1 && sy == -1))
+    // {
+    //     nova_posicao_x = game->player_x + (mudanca_x * sx);
+    //     nova_posicao_y = game->player_y + (mudanca_y * sx);
+    // }
+    // else if(sx == -1 && sy == 1)
+    // {
+    //     nova_posicao_x = game->player_x - mudanca_x;
+    //     nova_posicao_y = game->player_y - mudanca_y;
+    // }
+    // else if(sx == 1 && sy == -1)
+    // {
         nova_posicao_x = game->player_x + mudanca_x;
         nova_posicao_y = game->player_y + mudanca_y;
-    }
-    printf("%f %f\n",mudanca_x,mudanca_y);
+    // }
+    // printf("x = %f %f\n",mudanca_x,mudanca_y);
     // }
     // else
     // {
@@ -379,7 +384,7 @@ void get_pos_init_x(t_game *game,double distancia , double angle_rad,int sx,int 
     //     nova_posicao_y = game->player_y + mudanca_y;
     // }
 
-    printf("%2.f %2.f %f %d\n%2.f\n",mudanca_x,distancia,angle_rad,i,mudanca_y);
+    // printf("x = %2.f %2.f %f %d\n%2.f\n",mudanca_x,distancia,angle_rad,i,mudanca_y);
     put_pixel(game->mlx,game->game_temp,nova_posicao_x,nova_posicao_y,5,0x00FF00);
     // mlx_pixel_put(game->mlx,game->game_temp,nova_posicao_x,nova_posicao_y,0x00FF00);
 }
@@ -390,26 +395,31 @@ void get_pos_init_y(t_game *game,double distancia , double angle_rad,int sx,int 
     double mudanca_y = distancia * sin(angle_rad);
     double nova_posicao_x;
     double nova_posicao_y;
+    printf("y = %f\n",distancia);
 
-    printf("%d %d\n",sx,sy);
+    // if(mudanca_x < 0)
+    //     mudanca_x *= -1;
+    // if(mudanca_y < 0)
+    //     mudanca_y *= -1;
+    // printf("%d %d\n",sx,sy);
     // if(sx != sy)
     // {
-    if((sx == 1 && sy == 1) || (sx == -1 && sy == -1))
-    {
-        nova_posicao_x = game->player_x + (mudanca_x * sy);
-        nova_posicao_y = game->player_y + (mudanca_y * sy);
-    }
-    else if(sx == -1 && sy == 1)
-    {
+    // if((sx == 1 && sy == 1) || (sx == -1 && sy == -1))
+    // {
+    //     nova_posicao_x = game->player_x + (mudanca_x * sy);
+    //     nova_posicao_y = game->player_y + (mudanca_y * sy);
+    // }
+    // else if(sx == -1 && sy == 1)
+    // {
+    //     nova_posicao_x = game->player_x + mudanca_x;
+    //     nova_posicao_y = game->player_y + mudanca_y;
+    // }
+    // else if(sx == 1 && sy == -1)
+    // {
         nova_posicao_x = game->player_x + mudanca_x;
         nova_posicao_y = game->player_y + mudanca_y;
-    }
-    else if(sx == 1 && sy == -1)
-    {
-        nova_posicao_x = game->player_x - mudanca_x;
-        nova_posicao_y = game->player_y - mudanca_y;
-    }
-    printf("%f %f\n",mudanca_x,mudanca_y);
+    // }
+    // printf("y = %f %f\n",mudanca_x,mudanca_y);
     // }
     // else
     // {
@@ -417,7 +427,7 @@ void get_pos_init_y(t_game *game,double distancia , double angle_rad,int sx,int 
     //     nova_posicao_y = game->player_y + mudanca_y;
     // }
 
-    printf("%2.f %2.f %f %d\n%2.f\n",mudanca_x,distancia,angle_rad,i,mudanca_y);
+    // printf("y = %2.f %2.f %f %d\n%2.f\n",mudanca_x,distancia,angle_rad,i,mudanca_y);
     put_pixel(game->mlx,game->game_temp,nova_posicao_x,nova_posicao_y,5,0x00FF00);
     // mlx_pixel_put(game->mlx,game->game_temp,nova_posicao_x,nova_posicao_y,0x00FF00);
 }
@@ -440,7 +450,7 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
         if (get_pos_map((*game), x1, y1,&cor))
         {
             double distance = sqrt((x1 - game->player_x) * (x1 - game->player_x) + (y1 - game->player_y) * (y1 - game->player_y));
-            printf("i: %d\n",i);
+            // printf("i: %d\n",i);
             // printf("%2.f %d\n",distance,get_distance_to_object(game->player_x,game->player_y,game->map,angle_deg,game));
             // printf("ang 1 : %f\n",sqrt(pow(game->player_y % 64, 2) + pow((game->player_y % 64) / cos(angle_rad), 2)));
             // printf("ang 2 :%f\n",(game->player_x % 64) / (cos(angle_rad)));
@@ -448,8 +458,9 @@ void draw_line(void *mlx, void *win, int x1, int y1, double angle_deg, int lengt
             // double dist_x = sqrt(pow(game->player_x % 64, 2) + pow((game->player_x % 64) / sin(angle_rad), 2));
             // double dist_y = sqrt(pow(game->player_y % 64, 2) + pow((game->player_y % 64) / cos(angle_rad), 2));
             // double dist_y = sqrt(pow(game->player_y % 64, 2) + pow((game->player_y % 64) / cos(angle_rad), 2));
-            double dist_x = ((game->player_x + sx) % 64) / (cos(angle_rad));
-            double dist_y = ((game->player_y + sy) % 64) / (sin(angle_rad));
+            double dist_x = ((64 - (game->player_x) % 64)) / (cos(angle_rad));
+            double dist_y = ((64 - (game->player_y) % 64)) / (sin(angle_rad));
+            // printf("%f %f\n",dist_x,dist_y);
             // printf("%d %d\n",(game->player_x % 64),(game->player_y % 64));
             // get_pos_init(game,dist_y,angle_rad,sx,sy);
 
@@ -554,6 +565,7 @@ void draw_vision(t_game *game)
 void left_movement(t_game *game)
 {
     int cor;
+    static int num = 0;
 
     (void)cor;
     if(i >= 15 && i < 60 && !get_pos_map(*game, game->player_x - 1, game->player_y - 1, &cor))
@@ -713,13 +725,17 @@ int update_game(t_game *game)
     int cor = 0;
     (void)cor;
     if (is_left_key_pressed)
-        left_movement(game);
+        game->player_x--;
+        // left_movement(game);
     if (is_right_key_pressed)
-        right_movement(game); // Move the player to the right
+        game->player_x++;
+        // right_movement(game); // Move the player to the right
     if (is_up_key_pressed)
-        up_movement(game);
+        game->player_y--;
+        // up_movement(game);
     if (is_down_key_pressed)
-        down_movement(game);
+        game->player_y++;
+        // down_movement(game);
     if(is_left_camera)
     {
         i++;
@@ -737,6 +753,7 @@ int update_game(t_game *game)
     mlx_clear_window(game->mlx, game->game_temp); // Clear the window
     draw_vision(game);
     draw_map(game->map,game);
+    usleep(10000);
 
     return 0;
 }
@@ -766,6 +783,7 @@ int key_release(int keycode, t_game *game)
         is_left_key_pressed = false;
     if (keycode == D) // Right arrow key
         is_right_key_pressed = false;
+    if(keycode == W)
         is_up_key_pressed = false;
     if(keycode == S)
         is_down_key_pressed = false;
