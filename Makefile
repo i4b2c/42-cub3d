@@ -1,103 +1,57 @@
-.PHONY: all clean fclean
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: acanelas <acanelas@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/10/11 03:18:07 by acanelas          #+#    #+#              #
+#    Updated: 2023/11/15 23:02:39 by acanelas         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-#CORES
-RESETAR		=		"\033[0m"
-BRANCO		=		"\033[1;37m"
-PRETO		=		"\033[30m"
-VERMELHO	=		"\033[31m"
-VERDE		=		"\033[32m"
-AMARELO		=		"\033[33m"
-AZUL		=		"\033[34m"
-ROXO		=		"\033[35m"
-CIANO		=		"\033[36m"
-CINZA		=		"\033[37m"
+SRCS =	srcs/check_input.c \
+		srcs/check_n_get_map.c \
+		srcs/inicialize.c \
+		srcs/rgb_n_textures.c \
+		srcs/rgb_n_textures2.c \
+		srcs/str_util.c \
+		srcs/get_map_utils.c \
+		srcs/init_graphics.c \
+		srcs/render_map.c \
+		srcs/ray_casting.c \
+		srcs/ray_utils.c \
+		srcs/move_player.c \
+		srcs/rotate_player.c \
+		srcs/free_destroy.c \
+		srcs/get_tex.c \
+		srcs/main.c \
 
-#CORES BACKGROUND
-BRANCO_BACK		=		"\033[7m"
-PRETO_BACK		=		"\033[40m"
-VERMELHO_BACK	=		"\033[41m"
-VERDE_BACK		=		"\033[42m"
-AMARELO_BACK	=		"\033[43m"
-AZUL_BACK		=		"\033[44m"
-ROXO_BACK		=		"\033[45m"
-CIANO_BACK		=		"\033[46m"
-CINZA_BACK		=		"\033[47m"
-
-#EXECUTAVEIS
 NAME = cub3d
-NAME_A = $(NAME).a
-
-#DIRETORIOS
-SRC_DIR = src
-OBJ_DIR = .obj
-LIBFT = libft/
-
-#ARQUIVOS
-LIBFT_A = libft/libft.a
-SRCS =	$(SRC_DIR)/teste.c\
-
-#ARQUIVOS .o
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-
-#MAIN
-MAIN = $(SRC_DIR)/main.c
-
-#COMANDOS
+RM = rm -rf
+LIBFT = ./libft/libft.a
 CC = cc
-AR = ar rcs
-RM = rm -f
-MKDIR = mkdir -p
+MATH = -lm
+CFLAGS = -Wall -Wextra -Werror
+CCMLX = -L ./minilibx -lmlx -Ilmlx -lXext -lX11 -lbsd
 
-#GIT
-GIT = git clone git@github.com:42Paris/minilibx-linux.git minilibx
-
-#FLAGS
-LIBSRC = minilibx/libmlx_Linux.a \
-	minilibx/libmlx.a
-LIBFLAG = -lXext -lX11 -lm
-FLAGS = -g
-#-Werror -Wextra -Wall
-OUTPUT = -o
+OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
-libft_compile:
-	@echo $(AMARELO)"Compilando\tlibft     " $(<:src/%=%) $(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@make -C $(LIBFT) --silent
-	@echo $(VERDE)"Libft compilado     " $(BRANCO) "\t\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
+$(NAME): $(OBJS)
+	$(MAKE) -C ./libft
+	$(MAKE) -C ./minilibx
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(CCMLX) $(MATH) -o $(NAME)
 
-libft_clean:
-	@echo $(VERMELHO)"Removendo objetos libft\t" $(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@make clean -C $(LIBFT) --silent
+clean:
+	$(MAKE) clean -C ./libft
+	$(RM) $(OBJS)
 
-libft_fclean:
-	@echo $(VERMELHO)"Removendo binario libft"$(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@make fclean -C $(LIBFT) --silent
-
-$(NAME): $(OBJS) libft_compile
-	@echo $(VERDE)"Criando executavel cub3d" $(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@$(CC) $(MAIN) $(OBJS) $(LIBFT_A) $(FLAGS) $(LIBSRC)  $(LIBFLAG) $(OUTPUT) $(NAME)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@$(MKDIR) $(OBJ_DIR)
-	@echo $(AMARELO)"Compilando     " $(<:src/%=%) $(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@$(CC) -c $< -o $@
-
-clean:	libft_clean
-	@echo $(VERMELHO)"Removendo objetos\t" $(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@$(RM) $(OBJ_DIR)/*.o
-
-fclean: clean libft_fclean
-	@echo $(VERMELHO)"Removendo executavel cub3d"$(BRANCO) "\t[" $(VERDE)"✔"$(BRANCO) "]" $(RESETAR)
-	@$(RM) $(NAME)
-	@$(RM) -rf $(OBJ_DIR)
-minilibx:
-	@$(GIT)
-	@make --silent -C minilibx
+fclean: clean
+	$(MAKE) fclean -C ./libft
+	$(RM) $(NAME)
 
 re: fclean all
 
-git:
-	git add *
-	git commit -m .
-	git push
+.PHONY: all clean fclean re
